@@ -2,6 +2,7 @@ from main_classes import Volume, tan, pi, radians
 
 
 class Cube(Volume):
+    _param_len = 1
     def __init__(self, a):
         self.a = a
         self.b = a
@@ -17,6 +18,7 @@ class Cube(Volume):
 
 
 class Parallelepiped(Cube):
+    _param_len = 3
     def __init__(self, a, b, h):
         super().__init__(a)
         self.b = b
@@ -28,7 +30,8 @@ class Parallelepiped(Cube):
 
 
 class Pyramid(Volume):
-    def __init__(self, a, n, h):  # a - длина стороны, n - кол-во сторон, h - высота пирамиды
+    _param_len = 3
+    def __init__(self, a, n, h):  # a - длина стороны, n - кол-во граней, h - высота пирамиды
         self.a = a
         self.n = n
         self.h = h
@@ -49,6 +52,7 @@ class Pyramid(Volume):
 
 
 class Orb(Volume):
+    _param_len = 1
     def __init__(self, r):
         self.r = r
 
@@ -62,6 +66,7 @@ class Orb(Volume):
 
 
 class Cylinder(Volume):
+    _param_len = 2
     def __init__(self, r, h):
         self.r = r
         self.h = h
@@ -77,6 +82,7 @@ class Cylinder(Volume):
 
 class Conus(Cylinder):
     _h = 1 / 3
+    _param_len = 2
 
     def __init__(self, r, h):
         super().__init__(r, h)
