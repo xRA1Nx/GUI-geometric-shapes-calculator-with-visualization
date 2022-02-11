@@ -1,8 +1,9 @@
-from main_classes import Flat, pi
+from Classes.main_classes import Flat, pi
 
 
 class Square(Flat):
     _param_len = 1
+
     def __init__(self, a):
         self.a = a
         self.b = a
@@ -10,6 +11,7 @@ class Square(Flat):
 
 class Rectangle(Square):
     _param_len = 2
+
     def __init__(self, a, b):
         super().__init__(a)
         self.b = b
@@ -17,6 +19,7 @@ class Rectangle(Square):
 
 class Rhomb(Square):
     _param_len = 2
+
     def __init__(self, a, grad):
         super().__init__(a)
         self.grad = grad
@@ -24,13 +27,19 @@ class Rhomb(Square):
 
 class Trapese(Rectangle):
     _param_len = 3
+
     def __init__(self, a, b, h):
         super().__init__(a, b)
-        self._h = h
+        self.h = h
+
+    @property
+    def area(self):
+        return round((self.a + self.b) / 2 * self.h, 2)
 
 
 class Triangle(Rectangle):
     _param_len = 3
+
     def __init__(self, a, b, grad):
         super().__init__(a, b)
         self.grad = grad
@@ -42,9 +51,19 @@ class Triangle(Rectangle):
 
 class Circle(Flat):
     _param_len = 1
+
     def __init__(self, r):
         self.r = r
 
     @property
     def area(self):
         return round(pi * self.r ** 2, 2)
+
+
+flat_figurs = {"круг": Circle,
+               "квадрат": Square,
+               "прямоугольник": Rectangle,
+               "треугольник": Triangle,
+               "трапеция": Trapese,
+               "ромб": Rhomb,
+               }

@@ -1,65 +1,9 @@
 #!/usr/bin/env python
-from flat_classes import *
-from volume_classes import *
+
+from Classes.generate_figure import *
+
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication
-
-flat_figurs = {"круг": Circle,
-               "квадрат": Square,
-               "прямоугольник": Rectangle,
-               "треугольник": Triangle,
-               "трапеция": Trapese,
-               "ромб": Rhomb,
-               }
-
-volume_figurs = {"сфера": Orb,
-                 "куб": Cube,
-                 "параллелепипед": Parallelepiped,
-                 "пирамида": Pyramid,
-                 "цилиндр": Cylinder,
-                 "конус": Conus,
-                 }
-# res = {**flat_figurs, **volume_figurs}
-# print(res)
-#
-# for k, v in sorted(res.items(), key=lambda x: x[1]._param_len):
-#     print(k, v._param_len)
-
-figurs_types = {"плоские фигуры": "flat",
-                "обьемные фигуры": 'volume',
-                }
-
-
-class ChoiseFigure:
-    object = None
-    fig_type = "1"
-    figure = "квадрат"
-    params = [2]
-
-    @staticmethod
-    def convert_type(t):
-        return figurs_types[t]
-
-    @classmethod
-    def set_figure(cls, item):
-        cls.figure = item
-
-    @classmethod
-    def set_type(cls, item):
-        cls.fig_type = item
-
-    @classmethod
-    def set_params(cls, arg_list):
-        cls.params = arg_list
-
-    @classmethod
-    def get_area(cls):
-        if cls.convert_type(cls.fig_type) == "flat":
-            cls.object = flat_figurs[cls.figure](*cls.params)
-        elif cls.convert_type(cls.fig_type) == "volume":
-            cls.object = volume_figurs[cls.figure](*cls.params)
-        return cls.object.area
-
 
 Form, Window = uic.loadUiType("template.ui")
 
@@ -77,13 +21,13 @@ def radio_signal():
     if form.radioButton_flat.isChecked():
         figures = flat_figurs.keys()
         form.combo_operations.addItem("S - площадь фигуры")
-        ChoiseFigure.set_type("плоские фигуры")  # устанавливаем типа обьекта flat
+        GenerateFigure.set_type("плоские фигуры")  # устанавливаем типа обьекта flat
 
     elif form.radioButton_volume.isChecked():
         figures = volume_figurs.keys()
         form.combo_operations.addItem("S - площадь фигуры")
         form.combo_operations.addItem("V - обьем фигуры")
-        ChoiseFigure.set_type("обьемные фигуры")
+        GenerateFigure.set_type("обьемные фигуры")
 
     for item in figures:
         form.combo_figurs.addItem(item)
@@ -91,14 +35,22 @@ def radio_signal():
 
 def button_signal():
     args = []
+    all_figurs = {**flat_figurs, **volume_figurs}
+    selected_figure = all_figurs[form.combo_figurs.currentText()]
 
-    ChoiseFigure.set_figure(form.combo_figurs.currentText())
+    GenerateFigure.set_figure(form.combo_figurs.currentText())
+    GenerateFigure.set_operation(form.combo_operations.currentText())
 
     for item in POLE_TUPLE:
-        if item.text():
+        if item.text() and item.text().isdigit():
             args.append(int(item.text()))
-    ChoiseFigure.set_params(args)
-    form.output.setText(str(ChoiseFigure.get_area()))
+            item.setStyleSheet("color: black")
+        else:
+            item.setStyleSheet("color: red")
+        GenerateFigure.set_params(args)
+
+    if selected_figure._param_len == len(args):
+        form.output.setText(str(GenerateFigure.get_result()))
 
 
 def combo_figures_signal():
@@ -142,7 +94,7 @@ def combo_figures_signal():
         elif form.combo_figurs.currentText() == "пирамида":
             form.label_a.setText("сторона a, мм:")
             form.label_b.setText("кол-во граней, шт:")
-            form.label_c.setText("высота, º:")
+            form.label_c.setText("высота, мм:")
 
 
 form.radioButton_flat.toggled.connect(radio_signal)
@@ -161,15 +113,9 @@ LABLE_TUPLE = (form.label_a,
 def layout_cleared(pol=POLE_TUPLE, lab=LABLE_TUPLE):
     for i in (pol + lab):
         i.setHidden(True)
+        i.setText("")
 
 
 layout_cleared()
 
 app.exec()
-
-# arg = [5]
-# y = Circle(*arg)
-# print(y.area)
-# print(ChoiseFigure.get_area())
-#
-# print(ChoiseFigure.get_type())

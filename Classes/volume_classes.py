@@ -1,8 +1,9 @@
-from main_classes import Volume, tan, pi, radians
+from Classes.main_classes import Volume, tan, pi, radians
 
 
 class Cube(Volume):
     _param_len = 1
+
     def __init__(self, a):
         self.a = a
         self.b = a
@@ -19,6 +20,7 @@ class Cube(Volume):
 
 class Parallelepiped(Cube):
     _param_len = 3
+
     def __init__(self, a, b, h):
         super().__init__(a)
         self.b = b
@@ -31,6 +33,7 @@ class Parallelepiped(Cube):
 
 class Pyramid(Volume):
     _param_len = 3
+
     def __init__(self, a, n, h):  # a - длина стороны, n - кол-во граней, h - высота пирамиды
         self.a = a
         self.n = n
@@ -53,6 +56,7 @@ class Pyramid(Volume):
 
 class Orb(Volume):
     _param_len = 1
+
     def __init__(self, r):
         self.r = r
 
@@ -67,6 +71,7 @@ class Orb(Volume):
 
 class Cylinder(Volume):
     _param_len = 2
+
     def __init__(self, r, h):
         self.r = r
         self.h = h
@@ -90,3 +95,12 @@ class Conus(Cylinder):
     @property
     def area(self):
         return round(pi * self.r * (self.r + (self.r ** 2 + self.h ** 2) ** 0.5), 3)
+
+
+volume_figurs = {"сфера": Orb,
+                 "куб": Cube,
+                 "параллелепипед": Parallelepiped,
+                 "пирамида": Pyramid,
+                 "цилиндр": Cylinder,
+                 "конус": Conus,
+                 }
