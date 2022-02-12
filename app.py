@@ -43,7 +43,7 @@ class AppStart:
             form.combo_figurs.addItem(item)
 
     @staticmethod
-    def button_signal(pole=POLE_TUPLE):
+    def button_signal():
         args = []
         all_figurs = {**flat_figurs, **volume_figurs}
         selected_figure = all_figurs[form.combo_figurs.currentText()]
@@ -51,7 +51,7 @@ class AppStart:
         GenerateFigure.set_figure(form.combo_figurs.currentText())
         GenerateFigure.set_operation(form.combo_operations.currentText())
 
-        for item in pole:
+        for item in POLE_TUPLE:
             item.setStyleSheet("color: black")
             if item.text() and item.text().replace(".", "", 1).isdigit():  # проверка на float
                 args.append(float(item.text()))
@@ -63,8 +63,8 @@ class AppStart:
             form.output.setText(str(GenerateFigure.get_result()))
 
     @staticmethod
-    def layout_cleared(pol=POLE_TUPLE, lab=LABLE_TUPLE):
-        for i in (pol + lab):
+    def layout_cleared():
+        for i in (POLE_TUPLE + LABLE_TUPLE):
             i.setHidden(True)
             i.setStyleSheet("color: black")
             i.setText("")
