@@ -15,6 +15,7 @@ class Flat:
     _h = 1
     a = 0
     b = 0
+    param_len = 0
 
     @property
     def get_h(self):
@@ -27,6 +28,8 @@ class Flat:
     @property
     def area(self):
         return round(self.a * self.b * sin(self.grad * pi / 180) * self.get_h, 2)
+
+
 
 
 class Volume(Flat):

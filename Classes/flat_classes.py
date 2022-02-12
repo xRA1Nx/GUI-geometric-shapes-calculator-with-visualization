@@ -2,7 +2,7 @@ from Classes.main_classes import Flat, pi
 
 
 class Square(Flat):
-    _param_len = 1
+    param_len = 1
 
     def __init__(self, a):
         self.a = a
@@ -10,7 +10,7 @@ class Square(Flat):
 
 
 class Rectangle(Square):
-    _param_len = 2
+    param_len = 2
 
     def __init__(self, a, b):
         super().__init__(a)
@@ -18,7 +18,7 @@ class Rectangle(Square):
 
 
 class Rhomb(Square):
-    _param_len = 2
+    param_len = 2
 
     def __init__(self, a, grad):
         super().__init__(a)
@@ -26,7 +26,7 @@ class Rhomb(Square):
 
 
 class Trapese(Rectangle):
-    _param_len = 3
+    param_len = 3
 
     def __init__(self, a, b, h):
         super().__init__(a, b)
@@ -38,7 +38,7 @@ class Trapese(Rectangle):
 
 
 class Triangle(Rectangle):
-    _param_len = 3
+    param_len = 3
 
     def __init__(self, a, b, grad):
         super().__init__(a, b)
@@ -50,7 +50,7 @@ class Triangle(Rectangle):
 
 
 class Circle(Flat):
-    _param_len = 1
+    param_len = 1
 
     def __init__(self, r):
         self.r = r
