@@ -5,6 +5,9 @@ from Classes.generate_figure import *
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication
 
+# from PyQt5.QtGui import QPainter, QBrush, QPen
+# from PyQt5.QtCore import Qt
+
 Form, Window = uic.loadUiType("template.ui")
 
 app = QApplication([])
@@ -42,9 +45,9 @@ def button_signal():
     GenerateFigure.set_operation(form.combo_operations.currentText())
 
     for item in POLE_TUPLE:
-        if item.text() and item.text().isdigit():
-            args.append(int(item.text()))
-            item.setStyleSheet("color: black")
+        item.setStyleSheet("color: black")
+        if item.text() and item.text().replace(".", "", 1).isdigit():  # проверка на float
+            args.append(float(item.text()))
         else:
             item.setStyleSheet("color: red")
         GenerateFigure.set_params(args)
@@ -55,6 +58,7 @@ def button_signal():
 
 def combo_figures_signal():
     layout_cleared()
+    form.output.setText("")
     if form.combo_figurs.currentText() in {"круг", "сфера", "квадрат", "куб"}:
         form.pole_a.setHidden(False)
         form.label_a.setHidden(False)
@@ -113,8 +117,14 @@ LABLE_TUPLE = (form.label_a,
 def layout_cleared(pol=POLE_TUPLE, lab=LABLE_TUPLE):
     for i in (pol + lab):
         i.setHidden(True)
+        i.setStyleSheet("color: black")
         i.setText("")
 
+
+# painter = QPainter([])
+# painter.setPen(QPen(Qt.green, 8, Qt.SolidLine))
+# painter.setBrush(QBrush(Qt.red, Qt.SolidPattern))
+# painter.drawEllipse(40, 40, 400, 400)
 
 layout_cleared()
 
