@@ -9,19 +9,13 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5 import uic
-from PyQt5.QtWidgets import QWidget, QApplication, QLabel
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap  # для машинки
-from PyQt5.QtGui import QPainter  # для геометрических фигур
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(424, 242)
+        MainWindow.resize(405, 237)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.qp = QPainter()
         self.centralwidget.setObjectName("centralwidget")
         self.radioButton_flat = QtWidgets.QRadioButton(self.centralwidget)
         self.radioButton_flat.setGeometry(QtCore.QRect(10, 20, 121, 21))
@@ -85,19 +79,23 @@ class Ui_MainWindow(object):
         self.label_11 = QtWidgets.QLabel(self.centralwidget)
         self.label_11.setGeometry(QtCore.QRect(180, 130, 131, 21))
         self.label_11.setObjectName("label_11")
+        self.Button_exit = QtWidgets.QPushButton(self.centralwidget)
+        self.Button_exit.setGeometry(QtCore.QRect(380, 0, 20, 20))
+        self.Button_exit.setObjectName("Button_exit")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 424, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 405, 21))
         self.menubar.setObjectName("menubar")
+        self.menu = QtWidgets.QMenu(self.menubar)
+        self.menu.setObjectName("menu")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
+        self.menubar.addAction(self.menu.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -113,3 +111,5 @@ class Ui_MainWindow(object):
         self.label_b.setText(_translate("MainWindow", "сторона  b, мм:"))
         self.label_c.setText(_translate("MainWindow", "угол, °"))
         self.label_11.setText(_translate("MainWindow", "Результат вычислений:"))
+        self.Button_exit.setText(_translate("MainWindow", "X"))
+        self.menu.setTitle(_translate("MainWindow", "Калькулятор фигур"))

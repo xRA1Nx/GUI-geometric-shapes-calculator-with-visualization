@@ -7,8 +7,6 @@ _h параметр "высоты" , который используется ф�
 """
 
 
-
-
 class Flat:
     __type = "flat"
     grad = 90
@@ -29,7 +27,9 @@ class Flat:
     def area(self):
         return round(self.a * self.b * sin(self.grad * pi / 180) * self.get_h, 2)
 
-
+    @property
+    def get_param_len(self):
+        return self.param_len
 
 
 class Volume(Flat):
@@ -38,5 +38,3 @@ class Volume(Flat):
     @property
     def main_area(self):
         return round(self.a * self.b * sin(self.grad * pi / 180) * self.get_h, 2)
-
-

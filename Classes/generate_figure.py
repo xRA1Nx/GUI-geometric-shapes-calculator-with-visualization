@@ -21,8 +21,14 @@ class GenerateFigure:
         cls.figure = item
 
     @classmethod
+    def get_figure(cls):
+        return cls.figure
+
+    @classmethod
     def set_type(cls, item):
         cls.fig_type = item
+
+
 
     @classmethod
     def set_operation(cls, item):
@@ -31,6 +37,11 @@ class GenerateFigure:
     @classmethod
     def set_params(cls, arg_list):
         cls.params = arg_list
+
+    @classmethod
+    def get_params(cls):
+        return cls.params
+
 
     @classmethod
     def get_result(cls):
