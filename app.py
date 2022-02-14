@@ -1,32 +1,17 @@
 #!/usr/bin/env python
 from Classes.generate_figure import *
 from math import cos, sin, radians
-from PyQt5 import uic, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtCore import Qt, QCoreApplication, QPoint
+
+from PyQt5 import uic, QtWidgets
+from PyQt5.QtWidgets import QApplication, QDialog
+from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QPen, QPainter, QPolygon
 
-Form, Window = uic.loadUiType("template.ui")
-
-app = QApplication([])
-window = Window()
-window.setGeometry(100, 100, 600, 400)
-window.setFixedSize(420, 250)
-
-form = Form()
-form.setupUi(window)
-# window.setWindowFlags(Qt.FramelessWindowHint)  # убираем верхнее поле окна
-window.setWindowFlags(Qt.SubWindow
-
-                      )
-window.show()
-
-POLE_TUPLE = (form.pole_a,
-              form.pole_b,
-              form.pole_c)
-LABLE_TUPLE = (form.label_a,
-               form.label_b,
-               form.label_c)
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+from itertools import product, combinations
+import numpy as np
 
 
 class AppConfig:
@@ -52,28 +37,43 @@ class AppConfig:
 
     @staticmethod
     def button_signal():
-        args = []
-        #draw.close()
-        all_figurs = {**flat_figurs, **volume_figurs}
-        selected_figure = all_figurs[form.combo_figurs.currentText()]
+        draw.close()
+        draw_3d.close()
+        if form.combo_operations.currentText():
+            args = []
 
-        GenerateFigure.set_figure(form.combo_figurs.currentText())
-        GenerateFigure.set_operation(form.combo_operations.currentText())
+            all_figurs = {**flat_figurs, **volume_figurs}
+            selected_figure = all_figurs[form.combo_figurs.currentText()]
 
-        for item in POLE_TUPLE:
-            item.setStyleSheet("color: black")
-            if item.text() and item.text().replace(".", "", 1).isdigit():  # проверка на float
-                args.append(float(item.text()))
-            else:
-                item.setStyleSheet("color: red")
-            GenerateFigure.set_params(args)
+            GenerateFigure.set_figure(form.combo_figurs.currentText())
+            GenerateFigure.set_operation(form.combo_operations.currentText())
 
-        if selected_figure.param_len == len(args):
-            form.output.setText(str(GenerateFigure.get_result()))
-            draw.setGeometry(510, 130, 300, 200)
-            draw.set_params()
-            draw.set_figure()
-            draw.show()
+            for item in POLE_TUPLE:
+                item.setStyleSheet("color: black")
+                if item.text() and item.text().replace(".", "", 1).isdigit():  # проверка на float
+                    args.append(float(item.text()))
+                elif item.text():
+                    item.setStyleSheet("color: red")
+                GenerateFigure.set_params(args)
+
+            if selected_figure.param_len == len(args):
+                form.output.setText(str(GenerateFigure.get_result()))
+                d_x = window.width() + window.x() + 2
+                d_y = window.y() + 30
+                if form.radioButton_flat.isChecked():
+                    # делаем окно визуализации вспомогательным, теперь оно будет закрываться при закрытии главного окна!
+                    draw.setGeometry(d_x, d_y, 500, 500)
+                    draw.set_params()
+                    draw.set_figure()
+                    if max(args) <= 360:
+                        draw.show()
+                elif form.radioButton_volume.isChecked():
+                    draw_3d.set_figure()
+                    draw_3d.set_params()
+                    print(draw_3d.figure)
+                    draw_3d.setGeometry(d_x, d_y, 500, 500)
+                    draw_3d.start_draw()
+                    draw_3d.show()
 
     @staticmethod
     def layout_cleared():
@@ -128,20 +128,31 @@ class AppConfig:
                 form.label_c.setText("высота, мм:")
 
 
-class Draw(QWidget):
+class Draw(QDialog):
     a = 0
     b = 0
     c = 0
     figure = ""
 
-    def __init__(self):
-        super(Draw, self).__init__()
+    @property
+    def get_a(self):
+        return self.a
+
+    @property
+    def get_b(self):
+        return self.b
+
+    @property
+    def get_c(self):
+        return self.c
+
+    def __init__(self, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
         self.pen = QPen()
         self.setWindowTitle("Визуализация")
         self.pen.setColor(Qt.green)
         self.pen.setWidth(3)
-
-        # base_layer = QVBoxLayout(self)
+        # self.setWindowFlags(Qt.Window)
 
     def set_params(self):
         params = GenerateFigure.get_params()
@@ -201,16 +212,73 @@ class Draw(QWidget):
             painter.drawPolygon(poly)
 
 
-# form.gridLayout_2.addWidget(Painter)
+class Draw3D(Draw):
+    def __init__(self, parent=None):
+        super().__init__()
+        QtWidgets.QWidget.__init__(self, parent)
+
+    def start_draw(self):
+        Create3dFig(self, width=5, height=4).plot()
+
+
+class Create3dFig(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=5, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.ax = fig.add_subplot(111, projection='3d')
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+        self.plot()
+
+    def plot(self):
+        if draw_3d.figure == "сфера":
+            u = np.linspace(0, 2 * np.pi, 100)
+            v = np.linspace(0, np.pi, 100)
+            x = draw_3d.get_a * np.outer(np.cos(u), np.sin(v))
+            y = draw_3d.get_a * np.outer(np.sin(u), np.sin(v))
+            z = draw_3d.get_a * np.outer(np.ones(np.size(u)), np.cos(v))
+            self.ax.plot_surface(x, y, z, rstride=5, cstride=5, color='b')
+        if draw_3d.figure == "цилиндр":
+            u = np.linspace(0, 2 * np.pi, 50)  # разделить круг на 50 углов
+            h = draw_3d.get_b * np.linspace(0, 1, 20)  # Разделить высоту 1 на 20 равных частей
+            x = draw_3d.get_a * np.outer(np.sin(u), np.ones(len(h)))  # значение x повторяется 20 раз
+            y = draw_3d.get_a * np.outer(np.cos(u), np.ones(len(h)))  # значение y повторяется 20 раз
+            z = np.outer(np.ones(len(u)), h)  # высота, соответствующая x, y
+            self.ax.plot_surface(x, y, z, cmap=plt.get_cmap('rainbow'))
+        if draw_3d.figure == "куб":
+            r = [-1 * draw_3d.get_a, draw_3d.get_a]
+            for s, e in combinations(np.array(list(product(r, r, r))), 2):
+                if np.sum(np.abs(s - e)) == r[1] - r[0]:
+                    self.ax.plot3D(*zip(s, e), color="b")
 
 
 if __name__ == "__main__":
+    Form, Window = uic.loadUiType("template.ui")
+    app = QApplication([])
+    window = Window()
+    form = Form()
+    form.setupUi(window)
+    window.setGeometry(100, 100, 600, 400)
+    # window.setWindowFlags(Qt.CoverWindow)
+    # window.showMaximized()
+    window.setFixedSize(400, 175)
+    window.show()
+
+    POLE_TUPLE = (form.pole_a,
+                  form.pole_b,
+                  form.pole_c)
+    LABLE_TUPLE = (form.label_a,
+                   form.label_b,
+                   form.label_c)
+
     AppConfig.layout_cleared()
-    draw = Draw()
+    draw = Draw(window)  # наследуем от Мейн окна
+    draw_3d = Draw3D(window)
     form.radioButton_flat.toggled.connect(AppConfig.radio_signal)
     form.radioButton_volume.toggled.connect(AppConfig.radio_signal)
-    form.Button_exit.clicked.connect(QCoreApplication.instance().quit)  # закрываем приложение
     form.pushButton.clicked.connect(AppConfig.button_signal)
     form.combo_figurs.currentTextChanged.connect(AppConfig.combo_figures_signal)
 
     app.exec()
+
+    # form.Button_exit.clicked.connect(QCoreApplication.instance().quit)  # закрываем приложение
