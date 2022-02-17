@@ -5,12 +5,15 @@ figurs_types = {"плоские фигуры": "flat",
                 "обьемные фигуры": 'volume',
                 }
 
+
 class GenerateFigure:
     object = None
     fig_type = ""
     figure = ""
     params = []
     operation = ""
+    draw_type = ""
+
 
     @staticmethod
     def convert_type(t):
@@ -28,7 +31,13 @@ class GenerateFigure:
     def set_type(cls, item):
         cls.fig_type = item
 
+    @classmethod
+    def set_draw_type(cls, item):
+        cls.draw_type = item
 
+    @classmethod
+    def get_draw_type(cls):
+        return cls.draw_type
 
     @classmethod
     def set_operation(cls, item):
@@ -41,7 +50,6 @@ class GenerateFigure:
     @classmethod
     def get_params(cls):
         return cls.params
-
 
     @classmethod
     def get_result(cls):

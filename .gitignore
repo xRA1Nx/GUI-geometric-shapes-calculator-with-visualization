@@ -127,10 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/test.py
+/конус.py
 /Задание.jpg
 /narabotki.py
 /reser_copy.py
 /window_test.py
 /TEST Windows/
 /example.py
+/конус.py
+/test.py
