@@ -15,11 +15,7 @@ class Square(Flat):
 
     @property
     def get_params(self):
-        return self.a
-
-    @property
-    def draw_now(self):
-        return
+        return [self.a]
 
 
 class Rectangle(Square):
@@ -143,7 +139,7 @@ class Circle(Flat):
 
     @property
     def get_params(self):
-        return self.r
+        return [self.r]
 
     @property
     def area(self):

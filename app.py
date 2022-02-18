@@ -1,26 +1,41 @@
 #!/usr/bin/env python
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-from Classes.generate_figure import *
+from Classes.flat_classes import flat_figurs
+from Classes.volume_classes import volume_figurs
+from itertools import product, combinations
 
 from PyQt5 import uic, QtWidgets
 from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPen, QPainter, QPolygon
 
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
-from itertools import product, combinations
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
 import numpy as np
 
 
+# конфигуратор основного окна с шаблоном интерфейса
 class AppConfig:
     args = []
+    obj = None
 
     @classmethod
-    def operation(cls):
-        pass
+    def set_obj(cls, item):
+        cls.obj = item
+
+    @classmethod
+    def get_result(cls):
+        if form.combo_operations.currentText() == "S - площадь фигуры":
+            return cls.obj.area
+        elif form.combo_operations.currentText() == "V - обьем фигуры":
+            return cls.obj.volume
+
+    @classmethod
+    def get_obj(cls):
+        return cls.obj
 
     @staticmethod
     def radio_signal():
@@ -31,13 +46,11 @@ class AppConfig:
         if form.radioButton_flat.isChecked():
             figures = flat_figurs.keys()
             form.combo_operations.addItem("S - площадь фигуры")
-            GenerateFigure.set_type("плоские фигуры")  # устанавливаем типа обьекта flat
 
         elif form.radioButton_volume.isChecked():
             figures = volume_figurs.keys()
             form.combo_operations.addItem("S - площадь фигуры")
             form.combo_operations.addItem("V - обьем фигуры")
-            GenerateFigure.set_type("обьемные фигуры")
 
         for item in figures:
             form.combo_figurs.addItem(item)
@@ -58,29 +71,22 @@ class AppConfig:
                 elif item.text():
                     item.setStyleSheet("color: red")
                 if not item.text():
-                    item.setStyleSheet("border: 2px solid red")
+                    item.setStyleSheet("border: 1px solid red")
 
-                GenerateFigure.set_params(args)
             selected_figure = all_figurs[form.combo_figurs.currentText()](*args)
-            GenerateFigure.set_figure(form.combo_figurs.currentText())
-            GenerateFigure.set_operation(form.combo_operations.currentText())
-            GenerateFigure.set_draw_type(selected_figure.get_draw_type)
+            AppConfig.set_obj(selected_figure)
             if selected_figure.param_len == len(args):  # валидация по заполннености полей
-                form.output.setText(str(GenerateFigure.get_result()))
+                form.output.setText(str(AppConfig.get_result()))
                 if form.radioButton_flat.isChecked():
                     # делаем окно визуализации вспомогательным, теперь оно будет закрываться при закрытии главного окна!
                     draw.set_params()
-                    draw.set_figure()
                     draw.setGeometry(d_x, d_y, 500, 500)
-                    draw.set_draw_type()
-                    draw.set_obj(selected_figure)
                     if max(args) <= 360:
                         draw.show()
                 elif form.radioButton_volume.isChecked():
                     draw_3d.set_params()
-                    draw_3d.set_figure()
                     draw_3d.setGeometry(d_x, d_y, 500, 500)
-                    draw_3d.set_obj(selected_figure)
+                    draw_3d.set_draw_type()
                     draw_3d.start_draw()
                     draw_3d.show()
 
@@ -111,13 +117,13 @@ class AppConfig:
                 form.label_c.setText(selected_figure.label_c)
 
 
+# доп окно для рисования 2D моделей
 class Draw(QDialog):
     a = 0
     b = 0
     c = 0
     figure = ""
     draw_type = 0
-    obj = None
 
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
@@ -125,7 +131,6 @@ class Draw(QDialog):
         self.setWindowTitle("Визуализация")
         self.pen.setColor(Qt.green)
         self.pen.setWidth(3)
-        # self.setWindowFlags(Qt.Window)
 
     @property
     def get_a(self):
@@ -140,7 +145,7 @@ class Draw(QDialog):
         return self.c
 
     def set_params(self):
-        params = GenerateFigure.get_params()
+        params = AppConfig.get_obj().get_params
         if len(params) >= 1:
             self.a = params[0]
             self.b = self.a
@@ -149,32 +154,23 @@ class Draw(QDialog):
                 if len(params) == 3:
                     self.c = params[2]
 
-    def set_obj(self, item):
-        self.obj = item
-
-    def set_figure(self):
-        self.figure = GenerateFigure.get_figure()
-
-    @classmethod
-    def set_draw_type(cls):
-        cls.draw_type = GenerateFigure.get_draw_type()
-
     def paintEvent(self, event):
         def_x = 130
         def_y = 70
         painter = QPainter(self)
         painter.setPen(self.pen)
-        if self.obj:
-            if self.draw_type == 1:
-                painter.drawRect(def_x, def_y, int(self.a * 10), int(self.b * 10))
-            if self.draw_type == 2:
-                points = self.obj.get_points
-                poly = QPolygon(points)
-                painter.drawPolygon(poly)
-            if self.draw_type == 3:
-                painter.drawEllipse(def_x, def_y, int(self.a * 10), int(self.a * 10))
+        obj = AppConfig.get_obj()
+        if obj.draw_type == 1:
+            painter.drawRect(def_x, def_y, int(self.a * 10), int(self.b * 10))
+        elif obj.draw_type == 2:
+            points = obj.get_points
+            poly = QPolygon(points)
+            painter.drawPolygon(poly)
+        elif obj.draw_type == 3:
+            painter.drawEllipse(def_x, def_y, int(self.a * 10), int(self.a * 10))
 
 
+# доп окно для рисования 3D моделей
 class Draw3D(Draw):
     def __init__(self, parent=None):
         super().__init__()
@@ -183,7 +179,11 @@ class Draw3D(Draw):
     def start_draw(self):
         Create3dFig(self, width=5, height=4).plot()
 
+    def set_draw_type(self):
+        self.draw_type = AppConfig.get_obj().get_draw_type
 
+
+# генератор 3D модели
 class Create3dFig(FigureCanvas):
     def __init__(self, parent=None, width=5, height=5, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
@@ -193,8 +193,9 @@ class Create3dFig(FigureCanvas):
         self.plot()
 
     def plot(self):
-        if draw_3d.obj.draw_type == 1:
-            temp_x, temp_y, temp_z = draw_3d.obj.get_points
+        obj = AppConfig.get_obj()
+        if obj.get_draw_type == 1:
+            temp_x, temp_y, temp_z = obj.get_points
             x = temp_x * draw_3d.get_a
             y = temp_y * draw_3d.get_a
             if draw_3d.get_b:
@@ -203,12 +204,12 @@ class Create3dFig(FigureCanvas):
                 z = temp_z * draw_3d.get_a
             self.ax.plot_surface(x, y, z, cmap=plt.get_cmap('rainbow'))
 
-        if draw_3d.obj.draw_type == 2:
-            points, verts = draw_3d.obj.get_points
+        elif obj.get_draw_type == 2:
+            points, verts = obj.get_points
             self.ax.scatter3D(points[:, 0], points[:, 1], points[:, 2])
             self.ax.add_collection3d(Poly3DCollection(verts,
                                                       facecolors='cyan', linewidths=1, edgecolors='r', alpha=.25))
-        if draw_3d.obj.draw_type == 3:
+        elif obj.get_draw_type == 3:
             r = [-1 * draw_3d.get_a, draw_3d.get_a]
             for s, e in combinations(np.array(list(product(r, r, r))), 2):
                 if np.sum(np.abs(s - e)) == r[1] - r[0]:
@@ -222,8 +223,6 @@ if __name__ == "__main__":
     form = Form()
     form.setupUi(window)
     window.setGeometry(100, 100, 600, 400)
-    # window.setWindowFlags(Qt.CoverWindow)
-    # window.showMaximized()
     window.setFixedSize(400, 175)
     window.show()
 
@@ -244,5 +243,3 @@ if __name__ == "__main__":
     form.combo_figurs.currentTextChanged.connect(AppConfig.combo_figures_signal)
 
     app.exec()
-
-    # form.Button_exit.clicked.connect(QCoreApplication.instance().quit)  # закрываем приложение

@@ -20,10 +20,19 @@ class Flat:
     label_c = ""
     name = ""
     draw_type = 0
+    draw_type_3d = 0
     points = []
 
     def __str__(self):
-        return f"{self.name}, {self.label_a} - {self.a}, {self.label_b} - {self.b}, {self.label_c} - {self.c}"
+        labels = [self.label_a, self.label_b, self.label_c]
+        text = f"{self.name.upper()}-"
+        for i in range(len(self.get_params)):
+            text += f" {labels[i]} {self.get_params[i]}"
+        return text
+
+    @property
+    def get_params(self):
+        return self.a, self.b, self.c
 
     @property
     def get_points(self):
@@ -56,3 +65,7 @@ class Volume(Flat):
     @property
     def main_area(self):
         return round(self.a * self.b * sin(self.grad * pi / 180) * self.get_h, 2)
+
+    @property
+    def get_draw_type(self):
+        return self.draw_type_3d

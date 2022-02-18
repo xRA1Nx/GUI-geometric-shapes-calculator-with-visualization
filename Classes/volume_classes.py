@@ -6,7 +6,7 @@ class Cube(Volume):
     name = "куб"
     param_len = 1
     label_a = "сторона a, мм:"
-    draw_type = 3
+    draw_type_3d = 3
 
     def __init__(self, a=0):
         self.a = a
@@ -21,6 +21,10 @@ class Cube(Volume):
     def volume(self):
         return round(self.main_area * self.h, 2)
 
+    @property
+    def get_params(self):
+        return self.a, self.b, self.h
+
 
 class Parallelepiped(Cube):
     name = "параллелипипед"
@@ -28,7 +32,7 @@ class Parallelepiped(Cube):
     label_a = "сторона a, мм:"
     label_b = "сторона b, мм:"
     label_c = "высота h, мм:"
-    draw_type = 2
+    draw_type_3d = 2
 
     def __init__(self, a=0, b=0, h=0):
         super().__init__(a)
@@ -38,6 +42,10 @@ class Parallelepiped(Cube):
     @property
     def area(self):
         return round(2 * (self.a * self.b + self.b * self.h + self.a * self.h), 2)
+
+    @property
+    def get_params(self):
+        return self.a, self.b, self.h
 
     @property
     def get_points(self):
@@ -71,7 +79,7 @@ class Pyramid(Volume):
     label_a = "сторона a, мм:"
     label_b = "кол-во граней, шт:"
     label_c = "высота, мм:"
-    draw_type = 2
+    draw_type_3d = 2
 
     def __init__(self, a=0, n=0, h=0):  # a - длина стороны, n - кол-во граней, h - высота пирамиды
         self.a = a
@@ -93,6 +101,10 @@ class Pyramid(Volume):
         return round(volume, 3)
 
     @property
+    def get_params(self):
+        return self.a, self.n, self.h
+
+    @property
     def get_points(self):
         v = np.array([[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1], [0, 0, 1]])
         verts = [[v[0], v[1], v[4]], [v[0], v[3], v[4]],
@@ -104,7 +116,7 @@ class Orb(Volume):
     name = "сфера"
     param_len = 1
     label_a = "радиус R, мм:"
-    draw_type = 1
+    draw_type_3d = 1
 
     def __init__(self, r=0):
         self.r = r
@@ -116,6 +128,10 @@ class Orb(Volume):
     @property
     def volume(self):
         return round(4 / 3 * pi * self.r ** 3, 3)
+
+    @property
+    def get_params(self):
+        return [self.r]
 
     @property
     def get_points(self):
@@ -132,7 +148,7 @@ class Cylinder(Volume):
     param_len = 2
     label_a = "радиус R, мм:"
     label_b = "высота h, мм:"
-    draw_type = 1
+    draw_type_3d = 1
 
     def __init__(self, r=0, h=0):
         self.r = r
@@ -145,6 +161,10 @@ class Cylinder(Volume):
     @property
     def volume(self):
         return round(pi * self.r ** 2 * self.h * self._h, 3)
+
+    @property
+    def get_params(self):
+        return self.r, self.h
 
     @property
     def get_points(self):
@@ -160,7 +180,7 @@ class Conus(Cylinder):
     name = "конус"
     _h = 1 / 3
     param_len = 2
-    draw_type = 1
+    draw_type_3d = 1
 
     def __init__(self, r=0, h=0):
         super().__init__(r, h)
@@ -168,6 +188,10 @@ class Conus(Cylinder):
     @property
     def area(self):
         return round(pi * self.r * (self.r + (self.r ** 2 + self.h ** 2) ** 0.5), 3)
+
+    @property
+    def get_params(self):
+        return self.r, self.h
 
     @property
     def get_points(self):
