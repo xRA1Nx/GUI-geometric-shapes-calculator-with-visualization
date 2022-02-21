@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""
+Калькулятор фигур оформлен ввиде GUI приложения на основе библиотеки PyQt5
+Калькулятор производит расчет площади и обьема фигур, визуализирует 2D фигуры по введеным данным,
+визуализация 3D фигур реализована не меняет фактический размер фигур, а изменяет соответствующие значения
+осей координат. Для некоторых обьемных фигур это опция не реализована до конца (пирамида, параллелипипед).
+"""
+
 from Classes.flat_classes import flat_figurs
 from Classes.volume_classes import volume_figurs
 from itertools import product, combinations
@@ -15,6 +22,19 @@ from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 import numpy as np
+
+app = QApplication([])
+Form, Window = uic.loadUiType("template.ui")
+window = Window()
+form = Form()
+form.setupUi(window)
+
+POLE_TUPLE = (form.pole_a,
+              form.pole_b,
+              form.pole_c)
+LABLE_TUPLE = (form.label_a,
+               form.label_b,
+               form.label_c)
 
 
 # конфигуратор основного окна с шаблоном интерфейса
@@ -71,7 +91,7 @@ class AppConfig:
                 elif item.text():
                     item.setStyleSheet("color: red")
                 if not item.text():
-                    item.setStyleSheet("border: 1px solid red")
+                    item.setStyleSheet("border: 1.5px solid red")
 
             selected_figure = all_figurs[form.combo_figurs.currentText()](*args)
             AppConfig.set_obj(selected_figure)
@@ -115,6 +135,24 @@ class AppConfig:
                 form.pole_c.setHidden(False)
                 form.label_c.setHidden(False)
                 form.label_c.setText(selected_figure.label_c)
+
+    @staticmethod
+    def pole_a_signal():
+        form.pole_a.setStyleSheet("color: black")
+
+    @staticmethod
+    def pole_b_signal():
+        form.pole_b.setStyleSheet("color: black")
+        # form.pole_b.setStyleSheet("color: black; border: 1px solid black")
+
+    @staticmethod
+    def pole_c_signal():
+        form.pole_c.setStyleSheet("color: black")
+
+    @staticmethod
+    def pole_signal(pole):
+
+        pole.setStyleSheet("color: black")
 
 
 # доп окно для рисования 2D моделей
@@ -217,29 +255,18 @@ class Create3dFig(FigureCanvas):
 
 
 if __name__ == "__main__":
-    Form, Window = uic.loadUiType("template.ui")
-    app = QApplication([])
-    window = Window()
-    form = Form()
-    form.setupUi(window)
     window.setGeometry(100, 100, 600, 400)
     window.setFixedSize(400, 175)
     window.show()
-
-    POLE_TUPLE = (form.pole_a,
-                  form.pole_b,
-                  form.pole_c)
-    LABLE_TUPLE = (form.label_a,
-                   form.label_b,
-                   form.label_c)
-
     AppConfig.layout_cleared()
     draw_3d = Draw3D(window)
     draw = Draw(window)  # наследуем от Мейн окна
-
     form.radioButton_flat.toggled.connect(AppConfig.radio_signal)
     form.radioButton_volume.toggled.connect(AppConfig.radio_signal)
     form.pushButton.clicked.connect(AppConfig.button_signal)
     form.combo_figurs.currentTextChanged.connect(AppConfig.combo_figures_signal)
+    form.pole_a.editingFinished.connect(AppConfig.pole_a_signal)
+    form.pole_b.editingFinished.connect(AppConfig.pole_b_signal)
+    form.pole_c.editingFinished.connect(AppConfig.pole_c_signal)
 
     app.exec()
